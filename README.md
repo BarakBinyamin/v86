@@ -1,7 +1,7 @@
 # v86
 A birthday present for my brother [Erez](https://github.com/BarakBinyamin/v86.git). A virtual linux computer embedded in a website...
 
-See it [live]([barakbinyamin.github.io/v86/](https://barakbinyamin.github.io/v86/))!
+See it [live](https://barakbinyamin.github.io/v86/)
 
 # Making your own
 The best way to update the linux image is to use the [update](update) directory to add in files. Theres a pre-built linux image in there.
