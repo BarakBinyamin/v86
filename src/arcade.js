@@ -5,7 +5,7 @@ import { Howl, Howler } from "https://esm.sh/howler";
 import { AsciiEffect } from 'https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/effects/AsciiEffect.js';
 // import { CSG } from 'https://cdn.jsdelivr.net/npm/three-csg-ts/+esm';
 
-let scene, camera, renderer, controls
+let scene, camera, renderer, controls, ambientLight
 const keys = {};
 const machineLights = [];
 const loader = new GLTFLoader();
@@ -50,16 +50,75 @@ function arcadeAPI(data){
   if (cachedCMD && numATs>1){
     console.log(cachedCMD)
     switch (cachedCMD) {
-      case '@lights@':
+      case '@egg@':
         toggle_lights()
         break;
-      case "@cool@":
+      case "@somethingelse@":
         break;
       default:
         console.log(`${cachedCMD} is not an api call silly... `)
     }
     cachedCMD = ""
   }
+}
+function animateIntro({
+  duration = 3000,
+  ambientLight,
+  camera,
+  targetIntensity = 1,
+  targetXOffset = 2,
+  targetYOffset = .2
+}) {
+  const startTime = performance.now();
+
+  const startIntensity = ambientLight.intensity;
+  const startX = camera.position.x;
+  const startY = camera.position.y;
+
+  function easeInOut(t) {
+    // smooth easing (not linear, feels nicer)
+    return t < 0.5
+      ? 2 * t * t
+      : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  }
+
+  function update(now) {
+    const elapsed = now - startTime;
+    let t = elapsed / duration;
+    t = Math.min(t, 1);
+
+    const eased = easeInOut(t);
+
+    // interpolate ambient light
+    ambientLight.intensity =
+      startIntensity + (targetIntensity - startIntensity) * eased;
+
+    // interpolate camera position (zoom out on Z)
+    camera.position.x =
+      startX - targetXOffset * eased;
+    camera.position.y =
+      startY + targetYOffset * eased;
+
+    if (t < 1) {
+      requestAnimationFrame(update);
+    }else{
+      document.body.addEventListener("click", () => controls.lock());
+    }
+  }
+
+  requestAnimationFrame(update);
+}
+function enableControls(){
+  ambientLight = new THREE.AmbientLight(0xffffff, 0)
+  scene.add(ambientLight)
+  animateIntro({
+      ambientLight,
+      camera,
+      targetIntensity: 0.2,
+      targetXOffset: .8,
+      targetYOffset: .2,
+      duration: 10000
+    });
 }
 function toggle_lights(){
   console.log("toggling lights")
@@ -73,7 +132,7 @@ function toggle_lights(){
   turning_on.pos(3.95, 1.75, 15.95)
   turning_on.play()
   initArcade()
-  window.controls.lock()
+  enableControls()
 }
 
 // positional audio with howlerjs
@@ -236,6 +295,44 @@ function initOffice(){
   scene.add(rightWall);
   collidable.push(rightWall);
 
+  // posters
+  const poster1_texture = new THREE.TextureLoader().load("assets/art/time_crisis_poster.jpg");
+  const poster1 = new THREE.Mesh(
+    new THREE.PlaneGeometry(2, 3),
+    new THREE.MeshStandardMaterial({
+      map: poster1_texture,
+      transparent: true
+    })
+  );
+  poster1.rotation.y = 1.55
+  poster1.position.set(-4.7, 2.2, 13.75); // on right wall
+  scene.add(poster1);
+
+  const poster2_texture = new THREE.TextureLoader().load("assets/art/motherload-poster-square.jpeg");
+  const poster2 = new THREE.Mesh(
+    new THREE.PlaneGeometry(2, 2),
+    new THREE.MeshStandardMaterial({
+      map: poster2_texture,
+      transparent: true
+    })
+  );
+  poster2.rotation.y = 3.15
+  poster2.position.set(0, 2.5, 15+2); // on back wall
+  scene.add(poster2);
+
+
+  const poster3_texture = new THREE.TextureLoader().load("assets/art/EE_Art_of_Conquest.jpg");
+  const poster3 = new THREE.Mesh(
+    new THREE.PlaneGeometry(2, 3),
+    new THREE.MeshStandardMaterial({
+      map: poster3_texture,
+      transparent: true
+    })
+  );
+  poster3.rotation.y = -1.6
+  poster3.position.set(4.7, 2.8, 12.3); // on left wall
+  scene.add(poster3);
+
   //  Furnature
   loader.load("assets/furnature/metal_desk.glb", (gltf) => {
     const machine = gltf.scene;
@@ -354,12 +451,24 @@ function initMachines(){
   let pac_man = new Howl({
     src: ['assets/audio/games/Pac-Man Arcade gameplay [uswzriFIf_k].mp3'],
     preload: true,
-    volume: 1,
+    volume: .7,
     html5: false,
     loop: true 
   });
-  pac_man.pos(x+8, 0, z+4.5, 3.15)
-  pac_man.play()
+  pac_man.pos(x-.5, 0, z+3)
+  let id1 = pac_man.play()
+  pac_man.seek(18,id1)
+
+  let pac_man2 = new Howl({
+    src: ['assets/audio/games/Pac-Man Arcade gameplay [uswzriFIf_k].mp3'],
+    preload: true,
+    volume: .7,
+    html5: false,
+    loop: true 
+  });
+  pac_man2.pos(x+8, 0, z+4.5)
+  let id2 = pac_man2.play()
+  pac_man2.seek(18,id2)
 }
 // function arcadeLeftWall(){
 //   const floorWidth = 20
@@ -500,6 +609,59 @@ function initArcade(){
   scene.add(rightWall);
   collidable.push(rightWall);
 
+  // posters
+  const poster1_texture = new THREE.TextureLoader().load("assets/art/spy_fox.jpg");
+  const poster1 = new THREE.Mesh(
+    new THREE.PlaneGeometry(2, 3),
+    new THREE.MeshStandardMaterial({
+      map: poster1_texture,
+      transparent: true
+    })
+  );
+  poster1.rotation.y = 1.55
+  poster1.position.set(-(width/2)+.3, 2.5, 1.5+4); // on right wall
+  scene.add(poster1);
+
+  const poster3_texture = new THREE.TextureLoader().load("assets/art/pajama_sam.jpg");
+  const poster3 = new THREE.Mesh(
+    new THREE.PlaneGeometry(2, 3),
+    new THREE.MeshStandardMaterial({
+      map: poster3_texture,
+      transparent: true
+    })
+  );
+  poster3.rotation.y = 3.15
+  poster3.position.set((width/2)-1-3, 2, (depth/2)-.8+.3); // on back wall
+  scene.add(poster3);
+
+
+  const poster4_texture = new THREE.TextureLoader().load("assets/art/Uncle-Sam.jpg");
+  const poster4 = new THREE.Mesh(
+    new THREE.PlaneGeometry(3, 4),
+    new THREE.MeshStandardMaterial({
+      map: poster4_texture,
+      transparent: true
+    })
+  );
+  poster4.rotation.y = -1.6
+  poster4.position.set(width/2-.3, 2.5, (depth/2)-4); // on left wall
+  scene.add(poster4);
+
+
+  // pool table
+  // loader.load("assets/machines/pool_table.glb", (gltf) => {
+  //     const machine = gltf.scene;
+
+  //     machine.scale.set(.5,.5, .5);
+
+  //     machine.rotation.y = 0;
+  //     machine.position.set(-(width/2)-6, 0.5,  (depth/2)-3)
+  //     collidable.push(machine);
+  //     scene.add(machine);
+  //     // scene.add(light);
+  //     // machineLights.push(light);
+  //     // addOverheadLight(machine.position.x,4,machine.position.z)
+  // });
 
   // const light = new THREE.PointLight(0xffffff, 500, 500);
   // light.position.set(0,3,5)
@@ -538,7 +700,7 @@ function init() {
   window.controls = controls
 
   // Lighting (very dim ambient)
-  scene.add(new THREE.AmbientLight(0xffffff, 0)); // .2
+  // scene.add(new THREE.AmbientLight(0xffffff, .5)); // .2
 
   // Floor
   // const floor = new THREE.Mesh(
@@ -616,7 +778,6 @@ function init() {
 // addFrontDoors()
 // playNext()
   initOffice()
-  // initArcade()
 
   //const light = new THREE.SpotLight("#d3d3c0", 1000, 100, Math.PI/4, 1, .8);
   // const light = new THREE.SpotLight("#d3d3c0", 10000, 1000);
