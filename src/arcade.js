@@ -121,7 +121,7 @@ function skip() {
 }
 function addCRT(canvas){
   // asset
-  loader.load("/assets/machines/crt_computer_monitor.glb", (gltf) => {
+  loader.load("assets/machines/crt_computer_monitor.glb", (gltf) => {
     let machine = gltf.scene;
 
     machine.traverse((child) => {
@@ -195,7 +195,7 @@ function initOffice(){
 
 
   //  Floor
-  const floortexture = new THREE.TextureLoader().load("/assets/furnature/carpet.jpeg");
+  const floortexture = new THREE.TextureLoader().load("assets/furnature/carpet.jpeg");
   floortexture.wrapS = THREE.RepeatWrapping;
   floortexture.wrapT = THREE.RepeatWrapping;
   floortexture.repeat.set(20, 30); 
@@ -214,7 +214,7 @@ function initOffice(){
 
   //  Walls
   const wallMat = new THREE.MeshStandardMaterial({ color: 0x050505 });
-  // const texture = new THREE.TextureLoader().load('/assets/art/wallPaper2.jpg');
+  // const texture = new THREE.TextureLoader().load('assets/art/wallPaper2.jpg');
   // const wallMat = new THREE.MeshBasicMaterial({ map: texture});
   // wallMat.emissiveIntensity = 0
   // wallMat.color.set(0x808080); \
@@ -237,7 +237,7 @@ function initOffice(){
   collidable.push(rightWall);
 
   //  Furnature
-  loader.load("/assets/furnature/metal_desk.glb", (gltf) => {
+  loader.load("assets/furnature/metal_desk.glb", (gltf) => {
     const machine = gltf.scene;
     machine.scale.set(1.5,1.5,1.5);
     machine.position.set(3.75,.55, 15);
@@ -250,7 +250,7 @@ function initOffice(){
     alert("sorry, something is broken")
   }
   addCRT(termDiv.querySelector("canvas"))
-  // loader.load("/assets/machines/old_keyboard.glb", (gltf) => {
+  // loader.load("assets/machines/old_keyboard.glb", (gltf) => {
   //   const machine = gltf.scene;
   //   machine.scale.set(.0032,.0032,.0032);
   //   // machine.position.set(3.75, 1.75, 15);
@@ -259,7 +259,7 @@ function initOffice(){
   //   machine.rotation.y = -1.9
   //   scene.add(machine);
   // })
-  loader.load("/assets/minis/esp8266.glb", (gltf) => {
+  loader.load("assets/minis/esp8266.glb", (gltf) => {
     const machine = gltf.scene;
     machine.scale.set(.02,.02,.02);
     // machine.position.set(3.75, 1.75, 15);
@@ -268,7 +268,7 @@ function initOffice(){
     machine.rotation.y = -1.9
     scene.add(machine);
   })
-  loader.load("/assets/minis/rpi.glb", (gltf) => {
+  loader.load("assets/minis/rpi.glb", (gltf) => {
     const machine = gltf.scene;
     machine.scale.set(.025,.025,.025);
     // machine.position.set(3.75, 1.75, 15);
@@ -277,7 +277,7 @@ function initOffice(){
     machine.rotation.y = -2
     scene.add(machine);
   })
-  loader.load("/assets/minis/ram.glb", (gltf) => {
+  loader.load("assets/minis/ram.glb", (gltf) => {
     const machine = gltf.scene;
     machine.scale.set(.1,.1,.1);
     // machine.position.set(3.75, 1.75, 15);
@@ -294,7 +294,7 @@ function initOffice(){
   const doorWallHeight = 5
   const doorWallDepth  = .5
   const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x050505 })
-  // const texture = new THREE.TextureLoader().load('/assets/art/wallPaper.jpg');
+  // const texture = new THREE.TextureLoader().load('assets/art/wallPaper.jpg');
   // const ceilingMat = new THREE.MeshBasicMaterial({ map: texture});
   // ceilingMat.emissiveIntensity =0;
   const doorWallGeo   = new THREE.BoxGeometry(doorWallWidth, doorWallHeight, doorWallDepth);
@@ -308,8 +308,8 @@ function initOffice(){
   collidable.push(rightDoorWall);
 }
 
-function addMachine(x, y, z, rotY=0, machineIndex='/assets/machines/the_arcade.glb') {
-  loader.load("/assets/machines/the_arcade.glb", (gltf) => {
+function addMachine(x, y, z, rotY=0, machineIndex='assets/machines/the_arcade.glb') {
+  loader.load("assets/machines/the_arcade.glb", (gltf) => {
     const machine = gltf.scene;
     machine.scale.set(.014, .014, .014);
     machine.position.set(x, y, z);
@@ -405,7 +405,7 @@ function initMachines(){
 //   collidable.push(group);
 // }
 function addSpeaker(x,y,z,rot){
- loader.load("/assets/furnature/speaker.glb", (gltf) => {
+ loader.load("assets/furnature/speaker.glb", (gltf) => {
     const machine = gltf.scene;
     machine.scale.set(.02,.02,.02);
     // machine.position.set(x+.2,y, z);
@@ -423,7 +423,7 @@ function initArcade(){
   let depth = 20
   
   // Floor
-  const floortexture = new THREE.TextureLoader().load("/assets/furnature/carpet.jpeg");
+  const floortexture = new THREE.TextureLoader().load("assets/furnature/carpet.jpeg");
   // enable tiling
   floortexture.wrapS = THREE.RepeatWrapping;
   floortexture.wrapT = THREE.RepeatWrapping;
@@ -442,7 +442,7 @@ function initArcade(){
 
   // ceiling
   // const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x050505 })
-  const textureCeiling = new THREE.TextureLoader().load('/assets/art/ceiling.jpeg');
+  const textureCeiling = new THREE.TextureLoader().load('assets/art/ceiling.jpeg');
   const ceilingMat = new THREE.MeshBasicMaterial({ map: textureCeiling}); 
   ceilingMat.emissiveIntensity = 0;
   const ceilingGeo = new THREE.BoxGeometry(20, .5, 20);
@@ -455,7 +455,7 @@ function initArcade(){
 
   // Walls
   const wallMat = new THREE.MeshStandardMaterial({ color: 0x050505 });
-  // const texture = new THREE.TextureLoader().load('/assets/art/wallPaper.jpg');
+  // const texture = new THREE.TextureLoader().load('assets/art/wallPaper.jpg');
   // const wallMat = new THREE.MeshBasicMaterial({ map: texture});
 
   const frontWallGeo = new THREE.BoxGeometry(width-3, 5, .5);
@@ -465,7 +465,7 @@ function initArcade(){
   fronWall.position.set(3, 2.5, -(depth/2));
   scene.add(fronWall);
   collidable.push(fronWall);
-  const texture2 = new THREE.TextureLoader().load("/assets/art/kings-arcade.png");
+  const texture2 = new THREE.TextureLoader().load("assets/art/kings-arcade.png");
   const poster2 = new THREE.Mesh(
     new THREE.PlaneGeometry(9, 6),
     new THREE.MeshStandardMaterial({
@@ -476,7 +476,7 @@ function initArcade(){
   poster2.rotation.y = 0 // -3.15
   poster2.position.set(0, 2.3, -9.7); // on wall
   scene.add(poster2);
-  loader.load("/assets/minis/spray_can.glb", (gltf) => {
+  loader.load("assets/minis/spray_can.glb", (gltf) => {
     const machine = gltf.scene;
     machine.scale.set(.2, .2,.2);
     machine.position.set(4, .1, -9.5)
@@ -575,7 +575,7 @@ function init() {
   // collidable.push(rightWall);
 
   // // poster
-  // const texture = new THREE.TextureLoader().load("/assets/art/Uncle-Sam.jpg");
+  // const texture = new THREE.TextureLoader().load("assets/art/Uncle-Sam.jpg");
   // const poster = new THREE.Mesh(
   //   new THREE.PlaneGeometry(2, 3),
   //   new THREE.MeshStandardMaterial({
@@ -586,7 +586,7 @@ function init() {
   // poster.position.set(9.7, 2, 1); // on wall
   // scene.add(poster);
   // // antoher one
-  // const texture2 = new THREE.TextureLoader().load("/assets/art/kings-arcade.png");
+  // const texture2 = new THREE.TextureLoader().load("assets/art/kings-arcade.png");
   // const poster2 = new THREE.Mesh(
   //   new THREE.PlaneGeometry(9, 6),
   //   new THREE.MeshStandardMaterial({
@@ -628,7 +628,7 @@ function init() {
 }
 
 function addOverheadLight(x,y=3.5,z,r=0){
-  loader.load("/assets/furnature/fluorescent_light.glb", (gltf) => {
+  loader.load("assets/furnature/fluorescent_light.glb", (gltf) => {
     const machine = gltf.scene;
 
     machine.traverse((child) => {
@@ -669,7 +669,7 @@ function createWallMachines(side, rotY, offsetX, offsetZ) {
   for (let i = 0; i < 5; i++) {
     const spacing = -8 + i * 4;
 
-    loader.load("/assets/machines/the_arcade.glb", (gltf) => {
+    loader.load("assets/machines/the_arcade.glb", (gltf) => {
       const machine = gltf.scene;
 
       machine.scale.set(.014, .014, .014);
