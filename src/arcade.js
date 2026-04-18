@@ -16,8 +16,9 @@ const collisionDistance = 0.6;
 let crt_texture = ""
 let iteration = 0;
 
+
 /*
-# 
+# plan
 window.arcade.api = {
   lightsOn      : false,
   musicOn       : false,
@@ -35,20 +36,59 @@ api
 - @power-off@
 - @load-configuration@
 
-
 # 
 office
 arcade
 */
 
+// ARCADE API
+let cachedCMD = ""
+function arcadeAPI(data){
+  let letter = data.detail.message
+  cachedCMD+=letter
+  let numATs= cachedCMD.split('@').length-1
+  if (cachedCMD && numATs>1){
+    console.log(cachedCMD)
+    switch (cachedCMD) {
+      case '@lights@':
+        toggle_lights()
+        break;
+      case "@cool@":
+        break;
+      default:
+        console.log(`${cachedCMD} is not an api call silly... `)
+    }
+    cachedCMD = ""
+  }
+}
+function toggle_lights(){
+  console.log("toggling lights")
+  let turning_on = new Howl({
+    src: ['assets/audio/effects/fluorescent lamp sound [K8LwIZE7kzw].mp3'],
+    preload: true,
+    volume: 1,
+    html5: false,
+    loop: false 
+  });
+  turning_on.pos(3.95, 1.75, 15.95)
+  turning_on.play()
+  initArcade()
+  window.controls.lock()
+}
 
 // positional audio with howlerjs
-let tracks = ['/assets/audio/playlist/seperate_ways.mp3','/assets/audio/playlist/spooky.mp3']
+let tracks = ['assets/audio/playlist/seperate_ways.mp3','assets/audio/playlist/spooky.mp3']
 let track_index = 0
-let arcadeSound = ""
+let arcade_speaker1 = ""
+let arcade_speaker2 = ""
+
 function playNext(){
-  arcadeSound = new Howl({
+  console.log('added')
+  let width = 20
+  let depth = 20
+  arcade_speaker1 = new Howl({
     src: [tracks[track_index]],
+    preload: true,
     volume: 1,
     html5: false,
     onend: () => {
@@ -56,18 +96,29 @@ function playNext(){
       playNext();
     }
   });
-  arcadeSound.pos(-9, 2, -9);
-  arcadeSound.play();
+
+  arcade_speaker1.pos((width/2)+1, 4, (depth/2)-.8);
+
+  arcade_speaker2 = new Howl({
+    src: [tracks[track_index]],
+    preload: true,
+    volume: 1,
+    html5: false,
+  });
+  arcade_speaker2.pos(-(width/2)+1, 4, (depth/2)-.8);
+  arcade_speaker1.play();
+  arcade_speaker2.play();
 }
 function skip() {
-  if (arcadeSound) {
-    arcadeSound.stop(); // stop current
+  if (arcade_speaker1) {
+    arcade_speaker1.stop(); // stop current
   }
-
+  // if (arcade_speaker2) {
+  //   arcade_speaker2.stop(); // stop current
+  // }
   track_index = (track_index + 1) % tracks.length;
   playNext();
 }
-
 function addCRT(canvas){
   // asset
   loader.load("/assets/machines/crt_computer_monitor.glb", (gltf) => {
@@ -130,8 +181,18 @@ function addCRT(canvas){
 }
 
 function initOffice(){
+  // let w, d =[20, 20]
+  // arcade_speaker1 = new Howl({
+  //   src: [tracks[track_index]],
+  //   volume: 1,
+  //   html5: false,
+  // });
+
+  // arcade_speaker1.pos(3.5, 1.795, 15.79);
+  // arcade_speaker1.play();
   let width = 10
   let depth = 7.5
+
 
   //  Floor
   const floortexture = new THREE.TextureLoader().load("/assets/furnature/carpet.jpeg");
@@ -264,6 +325,7 @@ function addMachine(x, y, z, rotY=0, machineIndex='/assets/machines/the_arcade.g
     // machineLights.push(light);
     addOverheadLight(machine.position.x,4,machine.position.z)
   });
+
 }
 
 function initMachines(){
@@ -289,6 +351,15 @@ function initMachines(){
   addMachine(x+8, 0, z+1.5, 3.15)
   addMachine(x+8, 0, z+3, 3.15)
   addMachine(x+8, 0, z+4.5, 3.15)
+  let pac_man = new Howl({
+    src: ['assets/audio/games/Pac-Man Arcade gameplay [uswzriFIf_k].mp3.mp3'],
+    preload: true,
+    volume: .5,
+    html5: false,
+    loop: true 
+  });
+  pac_man.pos(x+8, 0, z+4.5, 3.15)
+  pac_man.play()
 }
 // function arcadeLeftWall(){
 //   const floorWidth = 20
@@ -442,6 +513,8 @@ function initArcade(){
 
   addSpeaker((width/2)-1, 4, (depth/2)-.8, .4)
   addSpeaker(-(width/2)+1, 4, (depth/2)-.8, -.4)
+
+  playNext()
 }
 
 // init scene
@@ -537,6 +610,7 @@ function init() {
   document.addEventListener("keyup", e => keys[e.code] = false);
 
   window.addEventListener("resize", onResize);
+  window.addEventListener("arcadeAPI", arcadeAPI);
 
 // addCRT()
 // addFrontDoors()
@@ -673,8 +747,9 @@ function animate() {
     crt_texture.needsUpdate = true;
   }
   
-
-  Howler.pos(camera.position.x, camera.position.y, camera.position.z);
+  if (arcade_speaker1){
+    Howler.pos(camera.position.x, camera.position.y, camera.position.z);
+  }
   renderer.render(scene, camera);
 }
 
