@@ -352,9 +352,9 @@ function initMachines(){
   addMachine(x+8, 0, z+3, 3.15)
   addMachine(x+8, 0, z+4.5, 3.15)
   let pac_man = new Howl({
-    src: ['assets/audio/games/Pac-Man Arcade gameplay [uswzriFIf_k].mp3.mp3'],
+    src: ['assets/audio/games/Pac-Man Arcade gameplay [uswzriFIf_k].mp3'],
     preload: true,
-    volume: .5,
+    volume: 1,
     html5: false,
     loop: true 
   });

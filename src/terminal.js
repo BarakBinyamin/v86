@@ -11,17 +11,17 @@ window.onload = function()
 {
     // V86 emulator
     var emulator = window.emulator = new V86({
-        wasm_path: "/assets/computer/v86.wasm",
+        wasm_path: "assets/computer/v86.wasm",
         memory_size: 32 * 1024 * 1024,
         vga_memory_size: 2 * 1024 * 1024,
         bios: {
-            url: "/assets/computer/seabios.bin",
+            url: "assets/computer/seabios.bin",
         },
         vga_bios: {
-            url: "/assets/computer/vgabios.bin",
+            url: "assets/computer/vgabios.bin",
         },
         cdrom: {
-            url: "/assets/computer/modified_buildroot.iso",
+            url: "assets/computer/modified_buildroot.iso",
         },
         autostart: true,
     });
