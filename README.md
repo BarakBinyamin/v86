@@ -18,6 +18,21 @@ I hope you enjoy, if you have any comments or questions please write a post on t
 
 Happy Birthday Erez!
 
+# Run locally
+A basic example with xterm that you could write middleware to catch serial data
+```bash
+git clone https://github.com/BarakBinyamin/v86.git
+cd v86/basic
+python3 -m http.server # -> go to http://localhost:8000 in yoour browser
+```
+
+The hosted version we see on github
+```bash
+git clone https://github.com/BarakBinyamin/v86.git
+cd v86
+python3 -m http.server # -> go to http://localhost:8000 in yoour browser
+```
+
 # Top tools used
 - https://sketchfab.com/ - assets
 - PointerLockControls - navigation
