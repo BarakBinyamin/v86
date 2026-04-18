@@ -1,0 +1,67 @@
+# Dockerfile: Auto-login root for minimal Buildroot ISO (using printf)
+FROM ubuntu:24.04
+
+# Install required tools
+RUN apt-get update && apt-get install -y \
+    squashfs-tools xorriso rsync gzip libarchive-tools p7zip-full e2tools isolinux \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+# Copy your Buildroot ISO
+COPY buildroot.iso .
+
+# Step 1: Extract ISO contents
+RUN mkdir iso_extract \
+    && bsdtar -C iso_extract -xf buildroot.iso
+
+# Step 2: Add init wrapper script to auto-login root on console
+RUN mkdir -p iso_extract/rootfs_overlay/etc/init.d; \
+    printf '%s\n' \
+'#!/bin/sh' \
+'# Auto-login root on console' \
+'if [ -t 0 ]; then' \
+'    exec /bin/login -f root' \
+'fi' \
+> iso_extract/rootfs_overlay/etc/init.d/auto_login.sh; \
+    chmod +x iso_extract/rootfs_overlay/etc/init.d/auto_login.sh
+
+# Step 3: Copy this script into ROOT.BIN
+RUN if [ -f iso_extract/ROOT.BIN ]; then \
+        e2cp iso_extract/rootfs_overlay/etc/init.d/auto_login.sh iso_extract/ROOT.BIN:/etc/init.d/auto_login.sh; \
+    else \
+        echo "ROOT.BIN not found"; exit 1; \
+    fi
+
+# Step 2: Patch ROOT.BIN in /etc/inittab for root auto-login
+RUN set -eux; \
+    if [ ! -f iso_extract/ROOT.BIN ]; then \
+        echo "ROOT.BIN not found!"; exit 1; \
+    fi; \
+    # Backup original inittab
+    e2cp iso_extract/ROOT.BIN:/etc/inittab inittab.orig; \
+    # Create new inittab with printf
+    printf '%s\n' \
+'::respawn:/sbin/getty --autologin root 38400 tty1' \
+'::respawn:/sbin/getty -L ttyS0 9600 vt100 -n -l /bin/sh' \
+'tty2::askfirst:-/bin/sh' \
+'tty3::askfirst:-/bin/sh' \
+'tty4::askfirst:-/bin/sh' \
+'::ctrlaltdel:/sbin/reboot -f' \
+> inittab.new; \
+    # Copy back to ROOT.BIN
+    e2cp inittab.new iso_extract/ROOT.BIN:/etc/inittab
+
+# Step 4: Rebuild bootable ISO
+RUN xorriso -as mkisofs \
+    -o modified_buildroot.iso \
+    -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin \
+    -c ISOLINUX/BOOT.CAT \
+    -b ISOLINUX/ISOLINUX.BIN \
+    -no-emul-boot -boot-load-size 4 -boot-info-table \
+    iso_extract
+
+# Expose rebuilt ISO to host
+VOLUME ["/workspace"]
+
+CMD ["bash"]

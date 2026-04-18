@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>crt</title>
+    <link rel="stylesheet" href="https://unpkg.com/xterm/css/xterm.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+    <script src="/xterm.js"></script>
+    <script src="/libv86.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="terminal" class="term"></div>
+    <script>
+"use strict";
+let first = true;
+window.onload = function()
+{
+    var emulator = window.emulator = new V86({
+        wasm_path: "/v86.wasm",
+        memory_size: 32 * 1024 * 1024,
+        vga_memory_size: 2 * 1024 * 1024,
+        // screen_container: document.getElementById("screen_container"),
+        bios: {
+            url: "/seabios.bin",
+        },
+        vga_bios: {
+            url: "/vgabios.bin",
+        },
+        cdrom: {
+            url: "modified_buildroot.iso",
+        },
+        autostart: true,
+    });
+
+
+
+    const term = new Terminal({
+        cols: window.screen.height>800 ? 48 : 40,
+        rows: window.screen.height>800 ? 19 : 14,
+        fontSize: 11,
+        padding: 2,
+        theme : { background: "#323232cc", curser: "#ffffff", cursorAccent: '#323232cc'} ,
+        cursorBlink: true, scrollback: 1000,
+    });
+    // const fitAddon = new FitAddon.FitAddon();
+    // term.loadAddon(fitAddon);
+    term.open(document.getElementById("terminal"));
+    // fitAddon.fit();
+    let msg = "booting up...";
+    function write(index) {
+        if (index < msg.length) {
+            term.write(msg[index]);
+            // Correct setTimeout usage
+            setTimeout(() => write(index + 1), 100); // 1.2s seems very long, changed to 200ms
+        }
+    }
+    write(0);
+    
+
+    // SERIAL → XTERM OUTPUT
+    emulator.add_listener("serial0-output-byte", function(byte) {
+        if (first){
+            const myEvent = new CustomEvent('vmOn', {
+                detail: { message: 'Hello World!' }, // Data to pass
+                bubbles: true,                       // Allow event to bubble up the DOM
+                cancelable: true                     // Allow preventDefault()
+            });
+
+            // 2. Launch (dispatch) the event from the document
+            document.dispatchEvent(myEvent);
+            first=false
+        }
+        term.write(String.fromCharCode(byte));
+    });
+
+    // // XTERM INPUT → SERIAL
+    term.onData(function(data) {
+        data = data.replace(/\n/g, "\r\n");
+        emulator.serial0_send(data)
+    })
+
+    window.addEventListener("resize", () => { term.fit && term.fit(); });
+
+    term.focus();
+
+     document.addEventListener('Esc', (e) => {
+        term.focus();
+        term.write(String.fromCharCode(27));
+        emulator.serial0_send(String.fromCharCode(27))
+    });
+     document.addEventListener('Tab', (e) => {
+        term.focus();
+        term.write(String.fromCharCode(9));
+        emulator.serial0_send(String.fromCharCode(9))
+    });
+}
+
+</script>
+
+<style>
+.term{
+    /* background-color: blue; */
+    height: 100%;
+    font-size: 5px;
+}
+.xterm-screen{
+    height:1000px !important;
+    padding: 5px!important;
+}
+.xterm-rows{
+    width:100%!important;
+}
+</style>
+
+  </body>
+</html>

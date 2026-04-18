@@ -1,0 +1,34 @@
+# Dockerfile: Add files to new ISO structure
+FROM ubuntu:24.04
+
+# Install required tools
+RUN apt-get update && apt-get install -y \
+    squashfs-tools xorriso rsync gzip libarchive-tools p7zip-full e2tools isolinux \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+# Copy the ISO into the container
+COPY new.iso .
+
+# Step 1: Extract ISO contents
+RUN mkdir iso_extract \
+    && bsdtar -C iso_extract -xf new.iso
+
+# Step 2: Add new file(s)
+RUN mkdir -p iso_extract/root \
+    && echo "# Hello from Docker ISO!" > iso_extract/root/hi.md
+
+# Step 3: Rebuild ISO (bootable with isolinux)
+RUN xorriso -as mkisofs \
+    -o modified_new.iso \
+    -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin \
+    -c isolinux/boot.catalog \
+    -b isolinux/isolinux.bin \
+    -no-emul-boot -boot-load-size 4 -boot-info-table \
+    iso_extract
+
+# Expose rebuilt ISO to host
+VOLUME ["/workspace"]
+
+CMD ["bash"]

@@ -1,0 +1,58 @@
+# Dockerfile: Buildroot ISO modifier (ext2 rootfs)
+FROM ubuntu:24.04
+
+# Install required tools
+RUN apt-get update && apt-get install -y \
+    squashfs-tools xorriso rsync gzip libarchive-tools p7zip-full e2tools isolinux sudo \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+# Copy your ISO into the container
+COPY buildroot.iso .
+
+# Step 1: Extract ISO contents
+RUN mkdir iso_extract \
+    && bsdtar -C iso_extract -xf buildroot.iso
+
+COPY files/ files/
+
+# # Step 2: Add /root/hi.md into ROOT.BIN (ext2 root filesystem)
+# RUN echo "# Hello from Docker ISO!" > hi.md \
+#     && e2mkdir iso_extract/ROOT.BIN /root \
+#     && e2cp hi.md iso_extract/ROOT.BIN:/root/files
+RUN set -eux; \
+    ROOT_IMG="iso_extract/ROOT.BIN"; \
+    SRC_DIR="files"; \
+    DST_DIR="/root/files"; \
+    \
+    # Ensure base dir exists
+    e2mkdir -p $ROOT_IMG:$DST_DIR || true; \
+    \
+    # Create directories first
+    find $SRC_DIR -type d | while read d; do \
+        rel="${d#$SRC_DIR}"; \
+        e2mkdir -p $ROOT_IMG:$DST_DIR$rel || true; \
+    done; \
+    \
+    # Copy files
+    find $SRC_DIR -type f | while read f; do \
+        rel="${f#$SRC_DIR}"; \
+        e2cp "$f" $ROOT_IMG:$DST_DIR$rel; \
+    done
+
+RUN printf "sh /root/files/matrix.sh" > .shrc && e2cp .shrc iso_extract/ROOT.BIN:/root/
+
+# Step 3: Rebuild bootable ISO
+RUN xorriso -as mkisofs \
+    -o modified_buildroot.iso \
+    -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin \
+    -c ISOLINUX/BOOT.CAT \
+    -b ISOLINUX/ISOLINUX.BIN \
+    -no-emul-boot -boot-load-size 4 -boot-info-table \
+    iso_extract
+
+# Expose the rebuilt ISO to host
+VOLUME ["/workspace"]
+
+CMD ["bash"]
