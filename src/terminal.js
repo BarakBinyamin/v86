@@ -31,7 +31,7 @@ window.onload = function()
         fontSize: 13,
         cols: 50,
         rows: 20,
-        scrollback: Number.MAX_SAFE_INTEGER,
+        scrollback: 0, //Number.MAX_SAFE_INTEGER,
         allowProposedApi: true,
         theme : { background: "#000000", curser: "#ffffff", cursorAccent: '#323232cc',     
         foreground: "#ffffff",  
