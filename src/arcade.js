@@ -158,15 +158,15 @@ function playNext(){
 
   arcade_speaker1.pos((width/2)+1, 4, (depth/2)-.8);
 
-  arcade_speaker2 = new Howl({
-    src: [tracks[track_index]],
-    preload: true,
-    volume: 1,
-    html5: false,
-  });
-  arcade_speaker2.pos(-(width/2)+1, 4, (depth/2)-.8);
+  // arcade_speaker2 = new Howl({
+  //   src: [tracks[track_index]],
+  //   preload: true,
+  //   volume: 1,
+  //   html5: false,
+  // });
+  // arcade_speaker2.pos(-(width/2)+1, 4, (depth/2)-.8);
+  // arcade_speaker1.play();
   arcade_speaker1.play();
-  arcade_speaker2.play();
 }
 function skip() {
   if (arcade_speaker1) {
